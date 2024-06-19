@@ -1,0 +1,127 @@
+import tkinter as tk
+import random
+
+# Function to quit the program
+def quit_program():
+    """
+    Close the main window when the "Quit" button is clicked
+    """
+    main_window.destroy()
+
+# Function to print all of juiles store details
+def print_party_details():
+    """
+    Print all camp details in the GUI
+    """
+    name_count = 0
+    # Create column headings
+    tk.Label(main_window, font=("Helvetica 10 bold"), text="Row").grid(column=0, row=7)
+    tk.Label(main_window, font=("Helvetica 10 bold"), text="Customer Name").grid(column=1, row=7)
+    tk.Label(main_window, font=("Helvetica 10 bold"), text="Receipt Number").grid(column=2, row=7)
+    tk.Label(main_window, font=("Helvetica 10 bold"), text="Item Hired").grid(column=3, row=7)
+    tk.Label(main_window, font=("Helvetica 10 bold"), text="Quantity").grid(column=4, row=7)
+    # Add each item in the list to its own row
+    while name_count < counters['total_entries']:
+        tk.Label(main_window, text=name_count).grid(column=0, row=name_count + 8)
+        tk.Label(main_window, text=party_details[name_count][0]).grid(column=1, row=name_count + 8)
+        tk.Label(main_window, text=party_details[name_count][1]).grid(column=2, row=name_count + 8)
+        tk.Label(main_window, text=party_details[name_count][2]).grid(column=3, row=name_count + 8)
+        tk.Label(main_window, text=party_details[name_count][3]).grid(column=4, row=name_count + 8)
+        name_count += 1
+    counters['name_count'] = name_count
+
+# Function to check input validity
+def check_inputs():
+    """
+    Check if all input fields are valid before adding to the list
+    """
+    input_check = 0
+    # Clear error messages
+    for i in range(4):
+        tk.Label(main_window, text=" ").grid(column=2, row=i)
+    # Check if customer name is not blank
+    if len(entry_customer.get()) == 0:
+        tk.Label(main_window, fg="red", text="Required").grid(column=2, row=0)
+        input_check = 1
+    # Check if item hired is not blank
+    if len(entry_hired.get()) == 0:
+        tk.Label(main_window, fg="red", text="Required").grid(column=2, row=1)
+        input_check = 1
+    # Check if quantity is not blank and between 1 and 500
+    if entry_quantity.get().isdigit():
+        if int(entry_quantity.get()) < 1 or int(entry_quantity.get()) > 500:
+            tk.Label(main_window, fg="red", text="1-500 only").grid(column=2, row=2)
+            input_check = 1
+    else:
+        tk.Label(main_window, fg="red", text="1-500 only").grid(column=2, row=2)
+        input_check = 1
+    # If all inputs are valid, add to the list
+    if input_check == 0:
+        append_name()
+
+# Function to add a new customer and their details to the list
+def append_name():
+    """
+
+    Add a new customer and their details to the list and clear input fields
+    """
+    global receipt_number
+    party_details.append([entry_customer.get(), receipt_number, entry_hired.get(), entry_quantity.get()])
+    # Clear input fields
+    entry_customer.delete(0, 'end')
+    entry_hired.delete(0, 'end')
+    entry_quantity.delete(0, 'end')
+    counters['total_entries'] += 1
+    receipt_number = random.randint(100000, 999999)
+
+# Function to delete a row from the list
+def delete_row():
+    """
+    Delete a row from the list and update the GUI
+    """
+    del party_details[int(delete_item.get())]
+    counters['total_entries'] -= 1
+    name_count = counters['name_count']
+    delete_item.delete(0, 'end')
+    # Clear the last item displayed on the GUI
+    for i in range(5):
+        tk.Label(main_window, text=" ").grid(column=i, row=name_count + 7)
+    # Print all items in the list
+    print_party_details()
+
+# Create the buttons and labels
+def setup_buttons():
+    """
+    Create all the buttons and labels for the GUI
+    """
+    tk.Label(main_window, text="Customer Name").grid(column=0, row=0, sticky=tk.E)
+    tk.Label(main_window, text="Item Hired").grid(column=0, row=1, sticky=tk.E)
+    tk.Label(main_window, text="Quantity").grid(column=0, row=2, sticky=tk.E)
+    tk.Label(main_window, text="Row #").grid(column=3, row=2, sticky=tk.E)
+    tk.Button(main_window, text="Quit", command=quit_program, width=10).grid(column=4, row=0, sticky=tk.E)
+    tk.Button(main_window, text="Append Details", command=check_inputs).grid(column=3, row=1)
+    tk.Button(main_window, text="Print Details", command=print_party_details, width=10).grid(column=4, row=1, sticky=tk.E)
+    tk.Button(main_window, text="Delete Row", command=delete_row, width=10).grid(column=4, row=3, sticky=tk.E)
+
+# Start the program
+def main():
+    """
+    Start the GUI
+    """
+    setup_buttons()
+    main_window.mainloop()
+
+# Create empty list for camp details and empty variable for entries in the list
+counters = {'total_entries': 0, 'name_count': 0} # initialize counters for number of entries and names
+party_details = [] # create an empty list to store camp details
+main_window = tk.Tk() # create the main window
+entry_customer = tk.Entry(main_window) # create a entry box for customer name
+entry_customer.grid(column=1, row=0)
+entry_hired = tk.Entry(main_window) # create a entry box for item hired
+entry_hired.grid(column=1, row=1)
+entry_quantity = tk.Entry(main_window) # create a entry box for quantity
+entry_quantity.grid(column=1, row=2)
+delete_item = tk.Entry(main_window) # create a entry box for deleting rows
+delete_item.grid(column=3, row=3)
+receipt_number = random.randint(100000, 999999) # generate a random receipt number
+main()
